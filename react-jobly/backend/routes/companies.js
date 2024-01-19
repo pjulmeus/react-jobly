@@ -53,20 +53,24 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   const q = req.query;
+  console.log(req.query);
   // arrive as strings from querystring, but we want as ints
   if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
   if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
 
   try {
     const validator = jsonschema.validate(q, companySearchSchema);
-    if (!validator.valid) {
+    console.log(validator.throwError);
+    if (validator.throwError) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
 
     const companies = await Company.findAll(q);
+    console.log("this is company" , companies);
     return res.json({ companies });
   } catch (err) {
+    console.log(err);
     return next(err);
   }
 });
